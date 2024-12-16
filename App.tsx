@@ -13,8 +13,7 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 const scheme = 'web3auth';
 const redirectUrl = `${scheme}://openlogin`;
 
-const clientId =
-  'BJLLHPe4ge6pRncD7jX5JevbeiJnNobWDYBIbnpmmmqwRc84XnyCW6geWB7Ixc4KTVwaT9w72Jqsrl7aCv2IxlI';
+const clientId = 'client-id';
 
 const privateKeyProvider = new SolanaPrivateKeyProvider({
   config: {
