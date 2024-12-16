@@ -1,118 +1,103 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, View, Button, TextInput} from 'react-native';
+import '@ethersproject/shims';
+import * as WebBrowser from '@toruslabs/react-native-web-browser';
+import Web3Auth, {
+  ChainNamespace,
+  LOGIN_PROVIDER,
+  WEB3AUTH_NETWORK,
+} from '@web3auth/react-native-sdk';
+import {SolanaPrivateKeyProvider} from '@web3auth/solana-provider';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const scheme = 'web3auth';
+const redirectUrl = `${scheme}://openlogin`;
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const clientId =
+  'BJLLHPe4ge6pRncD7jX5JevbeiJnNobWDYBIbnpmmmqwRc84XnyCW6geWB7Ixc4KTVwaT9w72Jqsrl7aCv2IxlI';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const privateKeyProvider = new SolanaPrivateKeyProvider({
+  config: {
+    chainConfig: {
+      chainNamespace: ChainNamespace.SOLANA,
+      chainId: '0x1',
+      rpcTarget: 'https://rpc.ankr.com/solana',
+      displayName: 'Solana Devnet',
+      blockExplorerUrl: 'https://explorer.solana.com/',
+      ticker: 'SOL',
+      tickerName: 'Solana',
+    },
+  },
+});
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const web3auth = new Web3Auth(WebBrowser, EncryptedStorage, {
+  clientId,
+  network: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+  redirectUrl,
+  privateKeyProvider,
+});
+
+export default function App() {
+  const [email, setEmail] = useState<string>('');
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const init = async () => {
+      console.log('Init--web3--');
+      await web3auth.init();
+      console.log('ready: ', web3auth.ready);
+      console.log('connected: ', web3auth.connected);
+      if (web3auth.connected) {
+        setLoggedIn(true);
+      }
+    };
+    init();
+  }, []);
+
+  const login = async () => {
+    try {
+      console.log(web3auth.ready);
+
+      if (!web3auth.ready) {
+        console.log('Web3auth not initialized');
+        return;
+      }
+
+      console.log(`Email: ${email}`);
+
+      if (!email) {
+        console.log('Enter email first');
+        return;
+      }
+
+      console.log('Logging in');
+      // IMP START - Login
+      await web3auth.login({
+        loginProvider: LOGIN_PROVIDER.EMAIL_PASSWORDLESS,
+        extraLoginOptions: {
+          login_hint: email,
+        },
+      });
+    } catch (e: any) {
+      console.log(e.message);
+    }
+  };
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.container}>
+      <Text>Hello</Text>
+      <View>
+        <TextInput placeholder="Enter email" onChangeText={setEmail} />
+        <Button title="Login with Web3Auth" onPress={login} />
+      </View>
     </View>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
 const styles = StyleSheet.create({
-  sectionContainer: {
+  container: {
     marginTop: 32,
     paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+    flex: 1,
   },
 });
-
-export default App;

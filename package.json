@@ -10,8 +10,21 @@
     "test": "jest"
   },
   "dependencies": {
+    "@ethersproject/shims": "^5.7.0",
+    "@toruslabs/react-native-web-browser": "^1.1.0",
+    "@web3auth/react-native-sdk": "^8.1.0",
+    "@web3auth/solana-provider": "^9.5.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
+    "empty-module": "^0.0.2",
+    "process": "^0.11.10",
     "react": "18.3.1",
-    "react-native": "0.76.5"
+    "react-native": "0.76.5",
+    "react-native-encrypted-storage": "^4.0.3",
+    "react-native-get-random-values": "^1.11.0",
+    "react-native-quick-crypto": "^0.7.10",
+    "readable-stream": "^4.5.2",
+    "webcrypto": "^0.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
